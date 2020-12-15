@@ -11,12 +11,20 @@ import { useAuth } from '../../../hooks/auth'
 const Login = () => {
 	const [email, setEmail] = useState('')
 	const [password, setPassword] = useState('')
+	const [error, setError] = useState(null)
 
 	const auth = useAuth()
 	const history = useHistory()
 
+	const onSignupSuccess = () => history.push('/')
+	const onSignupFailure = error => setError(error.message) 
+
 	const onSubmit = () => {
-		auth.login().then(() => history.push('/'))
+		setError(null)
+
+		auth
+			.signup({ email, password })
+			.then(onSignupSuccess, onSignupFailure)
 	}
 	
 	return (
@@ -38,6 +46,7 @@ const Login = () => {
 					label='Password' 
 					value={password}
 				/>
+				{error && <p>{error}</p>}
 				<Button type='submit'>
 					Log in
 				</Button>

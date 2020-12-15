@@ -1,17 +1,18 @@
 import { createContext, useContext, useState } from 'react'
 
-const fakeAuth = {
+import Api from '../utils/api'
+import PATHS from '../constants/paths'
+
+const AuthStore = {
   isAuthenticated: false,
-  async login() {
-    fakeAuth.isAuthenticated = true
-    return Promise.resolve()
+  parseResponse: ({token, user}) => {
+    console.log('token:', token);
+    return user
   },
-  async signup() {
-    fakeAuth.isAuthenticated = true
-    return Promise.resolve()
-  },
-  async signout() {
-    fakeAuth.isAuthenticated = false
+  login: data => Api.post(PATHS.login, data).then(AuthStore.parseResponse),
+  signup: data => Api.post(PATHS.signup, data).then(AuthStore.parseResponse),
+  signout: () => {
+    AuthStore.isAuthenticated = false
     return Promise.resolve()
   }
 }
@@ -25,22 +26,16 @@ export function useAuth() {
 function useProvideAuth() {
   const [user, setUser] = useState(null)
 
+  const login = data => AuthStore.login(data).then(setUser('user'))
 
-  const login = async () => {
-    return fakeAuth.login().then(() => setUser('user'))
-  }
+  const signup = data => AuthStore.signup(data).then(setUser('user'))
 
-  const signup = async () => {
-    return fakeAuth.signup().then(() => setUser('user'))
-  }
-
-  const signout = async () => {
-    return fakeAuth.signout().then(() => setUser(null))
-  }
+  const signout = () => AuthStore.signout().then(() => setUser(null))
 
   return {
     user,
     login,
+    signup,
     signout
   }
 }

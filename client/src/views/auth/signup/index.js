@@ -12,12 +12,20 @@ const Signup = () => {
 	const [email, setEmail] = useState('')
 	const [password, setPassword] = useState('')
 	const [passwordConfirmation, setPasswordConfirmation] = useState('')
+	const [error, setError] = useState(null)
 
 	const auth = useAuth()
 	const history = useHistory()
 
+	const onSignupSuccess = () => history.push('/')
+	const onSignupFailure = error => setError(error.message) 
+
 	const onSubmit = () => {
-		auth.signup().then(() => history.push('/'))
+		setError(null)
+
+		auth
+			.signup({ email, password })
+			.then(onSignupSuccess, onSignupFailure)
 	}
 	
 	return (
@@ -45,10 +53,12 @@ const Signup = () => {
 					label='Confirm Password' 
 					value={passwordConfirmation}
 				/>
+				{error && <p>{error}</p>}
 				<Button type='submit'>
 					Signup
 				</Button>
 			</Form>
+
 		</Container>
 	)
 }
